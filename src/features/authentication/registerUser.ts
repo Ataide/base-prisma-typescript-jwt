@@ -2,7 +2,7 @@ import { PrismaClient } from '@prisma/client'
 import { Asserts } from 'yup'
 import { userSchema } from '../../schemas/userSchema'
 import bcrypt from 'bcryptjs'
-import HttpException from '../../exceptions/httpException'
+import UserWithThatEmailAlreadyExistsException from '../../exceptions/UserWithThatEmailAlreadyExistsException'
 
 export type User = Asserts<typeof userSchema>
 
@@ -13,7 +13,7 @@ export async function registerUser (body: User): Promise<number> {
 
   try {
     if (emailAlreadyExist) {
-      throw HttpException.badRequest('Email already exists')
+      throw new UserWithThatEmailAlreadyExistsException(email)
     }
     const passwordHash = bcrypt.hashSync(password)
     const user = await prisma.user.create({

@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client'
+import UserWithThatEmailAlreadyExistsException from '../../src/exceptions/UserWithThatEmailAlreadyExistsException'
 import { registerUser } from '../../src/features/authentication/registerUser'
 
 const prisma = new PrismaClient()
@@ -15,8 +16,9 @@ describe('User Registration function test', () => {
     const result = await registerUser(body)
     expect(result).toBeGreaterThan(0)
   })
-  it('should not be able to register user with same email', async () => {
+
+  it('should be throw an exeception if email already exists in db', async () => {
     const body = { name: 'Ataide', email: 'ataide@gmail.com', password: '1234567' }
-    await expect(registerUser(body)).rejects.toMatchObject(new Error('Email already exist 2'))
+    await expect(registerUser(body)).rejects.toMatchObject(new UserWithThatEmailAlreadyExistsException(body.email))
   })
 })
