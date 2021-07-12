@@ -1,24 +1,38 @@
+import * as dotenv from 'dotenv'
 import express, { json } from 'express'
 import cors from 'cors'
 import morgan from 'morgan'
 import errorMiddleware from './middlewares/errorMiddleware'
-import authRoutes from './features/authentication/routes'
+import Controller from './interfaces/controllerInterface'
 
 class App {
-  public express: express.Application
+  public app: express.Application
 
-  constructor () {
-    this.express = express()
+  constructor (controllers: Controller[]) {
+    this.app = express()
     this.middlewares()
+    this.initializeControllers(controllers)
+    dotenv.config()
   }
 
   private middlewares (): void {
-    this.express.use(morgan('tiny'))
-    this.express.use(json())
-    this.express.use(cors())
-    this.express.use(authRoutes)
-    this.express.use(errorMiddleware)
+    this.app.use(morgan('tiny'))
+    this.app.use(json())
+    this.app.use(cors())
+    this.app.use(errorMiddleware)
+  }
+
+  private initializeControllers (controllers: Controller[]) {
+    controllers.forEach((controller) => {
+      this.app.use('/api/v1/', controller.router)
+    })
+  }
+
+  public listen (): void {
+    this.app.listen(process.env.APP_PORT, () => {
+      console.log(`🔥 App listening on the port ${process.env.APP_PORT}`)
+    })
   }
 }
 
-export default new App().express
+export default App

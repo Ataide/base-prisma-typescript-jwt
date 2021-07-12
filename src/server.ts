@@ -1,3 +1,12 @@
-import app from './app'
+import * as dotenv from 'dotenv'
+import App from './app'
+import AuthController from './features/authentication/authController'
 
-app.listen(3003)
+dotenv.config()
+
+const app = new App([
+  new AuthController()
+
+])
+
+app.listen()
